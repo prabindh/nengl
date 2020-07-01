@@ -179,18 +179,19 @@ int nengl_core::setup_fbo_as_texture_data(NENGL_TEXTURE_OBJ* objArray, unsigned 
     return 0;
 }
 
-int nengl_core::setup_shaders(const char** s, int len, int type, GLuint * obj)
+int nengl_core::setup_shaders(const char** s, int len, GLenum type, GLuint * obj)
 {
     int bShaderCompiled;
     *obj = 0;
     // Loads the vertex shader in the same way
     GLuint shaderObj = glCreateShader(type);
+    GL_CHECK(glCreateShader);
     glShaderSource(shaderObj, len, s, NULL);
 
     glCompileShader(shaderObj);
     glGetShaderiv(shaderObj, GL_COMPILE_STATUS, &bShaderCompiled);
 
-    if (!bShaderCompiled)
+    if (GL_FALSE == bShaderCompiled)
     {
         D_PRINTF("Error: compiling shader (type = %d)\n", type);
         char infolog[1000] = {0};

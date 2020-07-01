@@ -105,7 +105,7 @@ extern "C" {
         int setup_index_mesh(void* indices, int num, int bytes_per_index);
         int setup_texture_data(NENGL_TEXTURE_OBJ* objArray);
 	    int setup_fbo_as_texture_data(NENGL_TEXTURE_OBJ* objArray, unsigned int textureId);
-	    int setup_shaders(const char** s, int len, int type, GLuint * obj);
+	    int setup_shaders(const char** s, int len, GLenum type, GLuint * obj);
         int setup_shaders_array(const char** v, int vlen, const char** f, int flen);
         int scale(float x, float y, float z, const char* matrix);
         int rotate(float x, float y, float z, const char* matrix);
