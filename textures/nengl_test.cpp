@@ -140,14 +140,15 @@ int main()
         obj1->translate(0, 0, 5, "mvMatrix");
         obj1->rotate(angle, 0, 0, "mvMatrix");
         /* Display */
-	obj1->draw();
+        obj1->draw();
+
         ws->swap(win);
 
         /* Poll for and process events */
         ws->handle_events(win);
 
         /* completely remove obj1 */
-  	delete obj1;
+        delete obj1;
         angle += 1.0;
     }
     return 0;

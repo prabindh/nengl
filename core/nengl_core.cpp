@@ -32,8 +32,8 @@ nengl_core::~nengl_core()
     glUseProgram(0);
     glDeleteProgram(curr_state.program);
 }
-int nengl_core::setup_attribute_mesh(void* attribs, int buffer_size, char* attrib_name, 
-        int attrib_num_elems, int attrib_type, 
+int nengl_core::setup_attribute_mesh(void* attribs, int buffer_size, const char* attrib_name,
+        int attrib_num_elems, int attrib_type,
         bool attrib_normalised, int attrib_stride, void* attrib_elem_offset)
 {
     GLint loc = glGetAttribLocation(curr_state.program, attrib_name);
@@ -99,7 +99,7 @@ int nengl_core::setup_texture_data(NENGL_TEXTURE_OBJ* objArray)
         glActiveTexture(GL_TEXTURE0 + i);
 	if(obj->dim == NENGL_TEXTURE_2D)
 	{
-	        glBindTexture(GL_TEXTURE_2D, curr_state.textureID[i]);
+	    glBindTexture(GL_TEXTURE_2D, curr_state.textureID[i]);
 		if (obj->data) //data buffer already available
 		{
 		    glTexImage2D(
@@ -119,7 +119,8 @@ int nengl_core::setup_texture_data(NENGL_TEXTURE_OBJ* objArray)
 		{
 			D_PRINTF("loading from %s\n", obj->filename);
 			int bpp = (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? 4:3;
-			FILE* fp = fopen(obj->filename, "rb");
+            FILE* fp = NULL;
+            fopen_s(&fp, obj->filename, "rb");
 			if(!fp) {printf("Error loading\n"); return -1;}
 			void* texbuf = malloc(obj->width*obj->height*bpp);
 			if(!texbuf) {printf("Error allocating\n"); return -1;}
@@ -168,13 +169,13 @@ int nengl_core::setup_fbo_as_texture_data(NENGL_TEXTURE_OBJ* objArray, unsigned 
 	GL_CHECK(glGetUniformLocation);
 	curr_state.textureID[i] = textureId;
 	
-        glUniform1i(loc, 0);
-        glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_2D, curr_state.textureID[i]);
+    glUniform1i(loc, 0);
+    glActiveTexture(GL_TEXTURE0 + i);
+    glBindTexture(GL_TEXTURE_2D, curr_state.textureID[i]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //GL_NEAREST); //GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //GL_NEAREST); //GL_LINEAR);
 	curr_state.textureType[curr_state.num_textures] = NENGL_TEXTURE_2D;
-        curr_state.num_textures++;
+    curr_state.num_textures++;
     return 0;
 }
 
@@ -246,7 +247,7 @@ int nengl_core::setup_shaders_array(const char** v, int lenv, const char** f, in
 
     return 0;
 }
-int nengl_core::rotate(float x, float y, float z, char* matrix)
+int nengl_core::rotate(float x, float y, float z, const char* matrix)
 {
     restore_attribs();
     int loc = glGetUniformLocation(curr_state.program, matrix);
@@ -259,7 +260,7 @@ int nengl_core::rotate(float x, float y, float z, char* matrix)
     GL_CHECK(glUniformMatrix4fv);
     return 0;
 }
-int nengl_core::scale(float x, float y, float z, char* matrix)
+int nengl_core::scale(float x, float y, float z, const char* matrix)
 {
     restore_attribs();
     curr_xfm = glm::scale(curr_xfm, glm::vec3(x, y, z));
@@ -268,7 +269,7 @@ int nengl_core::scale(float x, float y, float z, char* matrix)
     GL_CHECK(glUniformMatrix4fv);
     return 0;
 }
-int nengl_core::translate(float x, float y, float z, char *matrix)
+int nengl_core::translate(float x, float y, float z, const char *matrix)
 {
     restore_attribs();
     curr_xfm = glm::translate(curr_xfm, glm::vec3(x, y, -z));

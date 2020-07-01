@@ -37,7 +37,7 @@ extern "C" {
         void clear_screen(float r, float g, float b);
         void depth_flag(bool flag);
         void clear_depth();
-        int check_extension(char* ext);
+        int check_extension(const char* ext);
     };
 
 #ifdef __cplusplus

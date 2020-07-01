@@ -77,13 +77,13 @@ extern "C" {
     typedef struct _NENGL_TEXTURE_OBJ
     {
         void* data;
-        char* filename;
+        const char* filename;
         int width;
         int height;
-	int depth;
+	    int depth;
         NENGL_COLOR_FORMAT type;
-	NENGL_TEXTURE_DIMENSION dim;
-        char* sampler_name;
+	    NENGL_TEXTURE_DIMENSION dim;
+        const char* sampler_name;
     }NENGL_TEXTURE_OBJ;
 
 
@@ -99,17 +99,17 @@ extern "C" {
     public:
         nengl_core();
         ~nengl_core();
-        int setup_attribute_mesh(void* attribs, int buffer_size, char* attrib_name,
-            int attrib_num_elems, int attrib_type,
-            bool attrib_normalised, int attrib_stride, void* attrib_elem_offset);
+        int setup_attribute_mesh(void* attribs, int buffer_size, const char* attrib_name,
+        int attrib_num_elems, int attrib_type,
+        bool attrib_normalised, int attrib_stride, void* attrib_elem_offset);
         int setup_index_mesh(void* indices, int num, int bytes_per_index);
         int setup_texture_data(NENGL_TEXTURE_OBJ* objArray);
-	int setup_fbo_as_texture_data(NENGL_TEXTURE_OBJ* objArray, unsigned int textureId);
-	int setup_shaders(const char** s, int len, int type, GLuint * obj);
+	    int setup_fbo_as_texture_data(NENGL_TEXTURE_OBJ* objArray, unsigned int textureId);
+	    int setup_shaders(const char** s, int len, int type, GLuint * obj);
         int setup_shaders_array(const char** v, int vlen, const char** f, int flen);
-        int scale(float x, float y, float z, char* matrix);
-        int rotate(float x, float y, float z, char* matrix);
-        int translate(float x, float y, float z, char* matrix);
+        int scale(float x, float y, float z, const char* matrix);
+        int rotate(float x, float y, float z, const char* matrix);
+        int translate(float x, float y, float z, const char* matrix);
         int default_transform(NENGL_VIEW_TYPE type);
         int alpha(float a);
         int setup_point_light(float originx, float originy, float originz, float farx, float fary, float farz);

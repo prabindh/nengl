@@ -86,7 +86,7 @@ void nengl_ws::clear_depth()
     glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-int nengl_ws::check_extension(char* ext)
+int nengl_ws::check_extension(const char* ext)
 {
     /* Get extension string checked, returns GL_FALSE or GL_TRUE */
     int ret = glfwExtensionSupported(ext);
