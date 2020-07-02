@@ -40,7 +40,7 @@ int nengl_core::setup_attribute_mesh(void* attribs, int buffer_size, const char*
     if (loc < 0) return -1;
 
     curr_state.num_attribs++;
-    if (curr_state.num_attribs > MAX_STATE_ID) return -1;
+    if (curr_state.num_attribs > (MAX_STATE_ID-1)) return -1;
     glGenBuffers(1, &curr_state.vboID[curr_state.num_attribs]);
     glBindBuffer(GL_ARRAY_BUFFER, curr_state.vboID[curr_state.num_attribs]);
     glBufferData(GL_ARRAY_BUFFER, buffer_size, attribs, GL_STATIC_DRAW);
@@ -67,12 +67,15 @@ int nengl_core::setup_attribute_mesh(void* attribs, int buffer_size, const char*
 int nengl_core::setup_index_mesh(void* indices, int num, int bytes_per_index)
 { 
     curr_state.num_attribs++;
-    if (curr_state.num_attribs > MAX_STATE_ID) return -1;
+    if (curr_state.num_attribs > (MAX_STATE_ID-1)) return -1;
     glGenBuffers(1, &curr_state.vboID[curr_state.num_attribs]);
     numindices = num;
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, curr_state.vboID[curr_state.num_attribs]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, num*bytes_per_index, indices, GL_STATIC_DRAW);
     draw_mode_indexed = true;
+    //BAD!! TODO
+    if (2 == bytes_per_index) curr_state.index_mode = 0;//short
+    else curr_state.index_mode = 1; //long, heaven forbid TODO
     return 0;
 }
 
@@ -299,8 +302,8 @@ int nengl_core::restore_attribs()
     int i;
     glUseProgram(curr_state.program);
     GL_CHECK(glUseProgram);
-    D_PRINTF("num_attribs = %d\n", curr_state.num_attribs);
-    for (i = 0; i < curr_state.num_attribs-1; i++)
+    D_PRINTF("num_attribs (not including index) = %d\n", curr_state.num_attribs);
+    for (i = 0; i < curr_state.num_attribs; i++)
     {
         glBindBuffer(GL_ARRAY_BUFFER, curr_state.vboID[i]);
         glVertexAttribPointer(curr_state.attrib_loc[i],
@@ -330,10 +333,34 @@ int nengl_core::draw()
 {
     restore_attribs();
     if (draw_mode_indexed == true)
-        glDrawElements(GL_TRIANGLES, numindices, GL_UNSIGNED_SHORT, 0);
+    {
+        if (curr_state.index_mode == 0) 
+            glDrawElements(GL_TRIANGLES, numindices, GL_UNSIGNED_SHORT, 0);
+        else 
+            glDrawElements(GL_TRIANGLES, numindices, GL_UNSIGNED_INT, 0);
+    }
     else //Unsupported currently
         return -1;
     GL_CHECK(glDrawElements);
     return 0;
 }
  
+int nengl_core::setup_uniform1f(const char* name, float f)
+{
+    restore_attribs();
+    int loc = glGetUniformLocation(curr_state.program, name);
+    GL_CHECK(glGetUniformLocation);
+    glUniform1f(loc, f);
+    GL_CHECK(glUniform1f);
+    return 0;
+}
+
+int nengl_core::setup_uniform3fv(const char* name, float* f)
+{
+    restore_attribs();
+    int loc = glGetUniformLocation(curr_state.program, name);
+    GL_CHECK(glGetUniformLocation);
+    glUniform3fv(loc, 3, f);
+    GL_CHECK(glUniform3fv);
+    return 0;
+}

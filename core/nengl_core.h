@@ -72,15 +72,16 @@ extern "C" {
         bool attrib_normalised[MAX_STATE_ID];
         int attrib_stride[MAX_STATE_ID];
         void* attrib_elem_offset[MAX_STATE_ID];
+        unsigned int index_mode; //0 0r 1
     }gl_state;
 
     typedef struct _NENGL_TEXTURE_OBJ
     {
         void* data;
         const char* filename;
-        int width;
-        int height;
-	    int depth;
+        unsigned int width;
+        unsigned int height;
+        unsigned int depth;
         NENGL_COLOR_FORMAT type;
 	    NENGL_TEXTURE_DIMENSION dim;
         const char* sampler_name;
@@ -112,6 +113,8 @@ extern "C" {
         int translate(float x, float y, float z, const char* matrix);
         int default_transform(NENGL_VIEW_TYPE type);
         int alpha(float a);
+        int setup_uniform1f(const char* name, float f);
+        int setup_uniform3fv(const char* name, float* f);
         int setup_point_light(float originx, float originy, float originz, float farx, float fary, float farz);
         int restore_attribs();
         int draw();
