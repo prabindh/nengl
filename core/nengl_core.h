@@ -33,6 +33,10 @@ extern "C" {
     { \
     int err = glGetError(); \
     printf("GL Error = %x for %s\n", err, (char*)(#x)); \
+    if (GL_NO_ERROR != err) \
+    { \
+        exit(-1); \
+    }\
 }
 #else //DEBUG
 #define D_PRINTF(x)

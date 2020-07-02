@@ -60,7 +60,9 @@ int nengl_core::setup_attribute_mesh(void* attribs, int buffer_size, const char*
         curr_state.attrib_normalised[curr_state.num_attribs],
         curr_state.attrib_stride[curr_state.num_attribs],
         curr_state.attrib_elem_offset[curr_state.num_attribs]);
+    GL_CHECK(glVertexAttribPointer);
     glEnableVertexAttribArray(curr_state.attrib_loc[curr_state.num_attribs]);
+    GL_CHECK(glEnableVertexAttribArray);
     return 0;
 }
 
@@ -69,9 +71,12 @@ int nengl_core::setup_index_mesh(void* indices, int num, int bytes_per_index)
     curr_state.num_attribs++;
     if (curr_state.num_attribs > (MAX_STATE_ID-1)) return -1;
     glGenBuffers(1, &curr_state.vboID[curr_state.num_attribs]);
+    GL_CHECK(glGetBuffers);
     numindices = num;
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, curr_state.vboID[curr_state.num_attribs]);
+    GL_CHECK(glBindBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, num*bytes_per_index, indices, GL_STATIC_DRAW);
+    GL_CHECK(glBufferData);
     draw_mode_indexed = true;
     //BAD!! TODO
     if (2 == bytes_per_index) curr_state.index_mode = 0;//short
@@ -94,59 +99,59 @@ int nengl_core::setup_texture_data(NENGL_TEXTURE_OBJ* objArray)
             D_PRINTF("Texture requirements exceed available HW texture units"); 
             return -1;
         }
-	D_PRINTF("Sampler loc = %d for name %s\n", loc, obj->sampler_name);
-	GL_CHECK(glGetUniformLocation);
-	glGenTextures(1, &curr_state.textureID[i]);
+	    D_PRINTF("Sampler loc = %d for name %s\n", loc, obj->sampler_name);
+	    GL_CHECK(glGetUniformLocation);
+	    glGenTextures(1, &curr_state.textureID[i]);
 	
         glUniform1i(loc, 0);
         glActiveTexture(GL_TEXTURE0 + i);
-	if(obj->dim == NENGL_TEXTURE_2D)
-	{
-	    glBindTexture(GL_TEXTURE_2D, curr_state.textureID[i]);
-		if (obj->data) //data buffer already available
-		{
-		    glTexImage2D(
-		        GL_TEXTURE_2D,
-		        0,
-		        (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
-		        obj->width,
-		        obj->height,
-		        0,
-		        (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
-		        GL_UNSIGNED_BYTE,
-		        obj->data
-		        );
-		    GL_CHECK(glTexImage2D);
-		}
-		else if (obj->filename)
-		{
-			D_PRINTF("loading from %s\n", obj->filename);
-			int bpp = (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? 4:3;
-            FILE* fp = NULL;
-            fopen_s(&fp, obj->filename, "rb");
-			if(!fp) {printf("Error loading\n"); return -1;}
-			void* texbuf = malloc(obj->width*obj->height*bpp);
-			if(!texbuf) {printf("Error allocating\n"); return -1;}
-			fread(texbuf, obj->width*obj->height*bpp, 1, fp);
-			fclose(fp);
-		    glTexImage2D(
-		        GL_TEXTURE_2D,
-		        0,
-		        (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
-		        obj->width,
-		        obj->height,
-		        0,
-		        (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
-		        GL_UNSIGNED_BYTE,
-		        texbuf
-		        );
-		    GL_CHECK(glTexImage2D);
-                    free(texbuf);
-		}
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //GL_NEAREST); //GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //GL_NEAREST); //GL_LINEAR);
-		curr_state.textureType[curr_state.num_textures] = NENGL_TEXTURE_2D;
-	}//2d texture
+	    if(obj->dim == NENGL_TEXTURE_2D)
+	    {
+            glBindTexture(GL_TEXTURE_2D, curr_state.textureID[i]);
+		    if (obj->data) //data buffer already available
+		    {
+		        glTexImage2D(
+		            GL_TEXTURE_2D,
+		            0,
+		            (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
+		            obj->width,
+		            obj->height,
+		            0,
+		            (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
+		            GL_UNSIGNED_BYTE,
+		            obj->data
+		            );
+		        GL_CHECK(glTexImage2D);
+		    }
+		    else if (obj->filename)
+		    {
+			    D_PRINTF("loading from %s\n", obj->filename);
+			    int bpp = (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? 4:3;
+                FILE* fp = NULL;
+                fopen_s(&fp, obj->filename, "rb");
+			    if(!fp) {printf("Error loading\n"); return -1;}
+			    void* texbuf = malloc(obj->width*obj->height*bpp);
+			    if(!texbuf) {printf("Error allocating\n"); return -1;}
+			    fread(texbuf, obj->width*obj->height*bpp, 1, fp);
+			    fclose(fp);
+		        glTexImage2D(
+		            GL_TEXTURE_2D,
+		            0,
+		            (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
+		            obj->width,
+		            obj->height,
+		            0,
+		            (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
+		            GL_UNSIGNED_BYTE,
+		            texbuf
+		            );
+		        GL_CHECK(glTexImage2D);
+                        free(texbuf);
+		    }
+		    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //GL_NEAREST); //GL_LINEAR);
+		    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //GL_NEAREST); //GL_LINEAR);
+		    curr_state.textureType[curr_state.num_textures] = NENGL_TEXTURE_2D;
+	    }//2d texture
         //Go to the next texture
         obj = ++objArray;
         i++;
@@ -300,30 +305,34 @@ int nengl_core::alpha(float a)
 int nengl_core::restore_attribs()
 {
     int i;
+    GL_CHECK("pre"restore_attribs);
     glUseProgram(curr_state.program);
+    D_PRINTF("program=%d\n", curr_state.program);
     GL_CHECK(glUseProgram);
     D_PRINTF("num_attribs (not including index) = %d\n", curr_state.num_attribs);
     for (i = 0; i < curr_state.num_attribs; i++)
     {
         glBindBuffer(GL_ARRAY_BUFFER, curr_state.vboID[i]);
+        GL_CHECK(glBindBuffer);
         glVertexAttribPointer(curr_state.attrib_loc[i],
             curr_state.attrib_num_elems[i],
             curr_state.attrib_type[i],
             curr_state.attrib_normalised[i],
             curr_state.attrib_stride[i],
             curr_state.attrib_elem_offset[i]);
+        GL_CHECK(glVertexAttribPointer);
         glEnableVertexAttribArray(curr_state.attrib_loc[i]);
-	GL_CHECK(glEnableVertexAttribArray);
+	    GL_CHECK(glEnableVertexAttribArray);
     }
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, curr_state.vboID[i]);
     GL_CHECK(glBindBuffer);
     for (i = 0; i < curr_state.num_textures; i++)
     {
-	glActiveTexture(GL_TEXTURE0 + i);
-	if(curr_state.textureType[i] == NENGL_TEXTURE_2D)
-        	glBindTexture(GL_TEXTURE_2D, curr_state.textureID[i]);
-	else
-		glBindTexture(GL_TEXTURE_3D_OES, curr_state.textureID[i]);
+	    glActiveTexture(GL_TEXTURE0 + i);
+	    if(curr_state.textureType[i] == NENGL_TEXTURE_2D)
+            glBindTexture(GL_TEXTURE_2D, curr_state.textureID[i]);
+	    else
+		    glBindTexture(GL_TEXTURE_3D_OES, curr_state.textureID[i]);
     }
     GL_CHECK(restore_attribs);
     return 0;

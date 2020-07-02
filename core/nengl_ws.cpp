@@ -60,6 +60,7 @@ bool nengl_ws::get_window_status(void* window)
 void nengl_ws::clear_screen(float r, float g, float b)
 {
     glClearColor(r, g, b, 0.0f);
+    GL_CHECK(glClearColor);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -85,6 +86,7 @@ void nengl_ws::depth_flag(bool flag)
 void nengl_ws::clear_depth()
 {
     glClear(GL_DEPTH_BUFFER_BIT);
+    GL_CHECK(glClear);
 }
 
 int nengl_ws::check_extension(const char* ext)
