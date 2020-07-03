@@ -160,6 +160,81 @@ int nengl_core::setup_texture_data(NENGL_TEXTURE_OBJ* objArray)
     return 0;
 }
 
+
+int nengl_core::update_texture_data(NENGL_TEXTURE_OBJ* objArray)
+{
+    int i = 0;
+    int loc;
+    NENGL_TEXTURE_OBJ* obj = objArray;
+
+    restore_attribs();
+    while (obj->height)
+    {
+        loc = glGetUniformLocation(curr_state.program, obj->sampler_name);
+        if (i > GL_MAX_TEXTURE_IMAGE_UNITS)
+        {
+            D_PRINTF("Texture requirements exceed available HW texture units");
+            return -1;
+        }
+        D_PRINTF("Sampler loc = %d for name %s\n", loc, obj->sampler_name);
+        GL_CHECK(glGetUniformLocation);
+
+        glUniform1i(loc, 0);
+        glActiveTexture(GL_TEXTURE0 + i);
+        if (obj->dim == NENGL_TEXTURE_2D)
+        {
+            glBindTexture(GL_TEXTURE_2D, curr_state.textureID[i]);
+            if (obj->data) //data buffer already available
+            {
+                glTexImage2D(
+                    GL_TEXTURE_2D,
+                    0,
+                    (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
+                    obj->width,
+                    obj->height,
+                    0,
+                    (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
+                    GL_UNSIGNED_BYTE,
+                    obj->data
+                );
+                GL_CHECK(glTexImage2D);
+            }
+            else if (obj->filename)
+            {
+                D_PRINTF("loading from %s\n", obj->filename);
+                int bpp = (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? 4 : 3;
+                FILE* fp = NULL;
+                fopen_s(&fp, obj->filename, "rb");
+                if (!fp) { printf("Error loading\n"); return -1; }
+                void* texbuf = malloc(obj->width*obj->height*bpp);
+                if (!texbuf) { printf("Error allocating\n"); return -1; }
+                fread(texbuf, obj->width*obj->height*bpp, 1, fp);
+                fclose(fp);
+                glTexImage2D(
+                    GL_TEXTURE_2D,
+                    0,
+                    (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
+                    obj->width,
+                    obj->height,
+                    0,
+                    (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
+                    GL_UNSIGNED_BYTE,
+                    texbuf
+                );
+                GL_CHECK(glTexImage2D);
+                free(texbuf);
+            }
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //GL_NEAREST); //GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //GL_NEAREST); //GL_LINEAR);
+            curr_state.textureType[curr_state.num_textures] = NENGL_TEXTURE_2D;
+        }//2d texture
+        //Go to the next texture
+        obj = ++objArray;
+        i++;
+    }
+    return 0;
+}
+
 int nengl_core::setup_fbo_as_texture_data(NENGL_TEXTURE_OBJ* objArray, unsigned int textureId)
 {
     int i = 0;
@@ -305,7 +380,7 @@ int nengl_core::alpha(float a)
 int nengl_core::restore_attribs()
 {
     int i;
-    GL_CHECK("pre"restore_attribs);
+
     glUseProgram(curr_state.program);
     D_PRINTF("program=%d\n", curr_state.program);
     GL_CHECK(glUseProgram);

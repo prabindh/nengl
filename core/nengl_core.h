@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
     //debug
-#if 1 //def _DEBUG
+#ifdef _DEBUG
 #define D_PRINTF  printf
 #define GL_CHECK(x) \
     { \
@@ -105,10 +105,11 @@ extern "C" {
         nengl_core();
         ~nengl_core();
         int setup_attribute_mesh(void* attribs, int buffer_size, const char* attrib_name,
-        int attrib_num_elems, int attrib_type,
-        bool attrib_normalised, int attrib_stride, void* attrib_elem_offset);
+            int attrib_num_elems, int attrib_type,
+            bool attrib_normalised, int attrib_stride, void* attrib_elem_offset);
         int setup_index_mesh(void* indices, int num, int bytes_per_index);
         int setup_texture_data(NENGL_TEXTURE_OBJ* objArray);
+        int update_texture_data(NENGL_TEXTURE_OBJ* objArray);
 	    int setup_fbo_as_texture_data(NENGL_TEXTURE_OBJ* objArray, unsigned int textureId);
 	    int setup_shaders(const char** s, int len, GLenum type, GLuint * obj);
         int setup_shaders_array(const char** v, int vlen, const char** f, int flen);
