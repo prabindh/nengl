@@ -37,10 +37,10 @@ int init_object(nengl_core* obj1, int id)
         1, 0,
         1, 1,
 
-        0, 1,
-        0, 0,
+        1, 1,
         1, 0,
-        1, 1
+        0, 0,
+        0, 1
     };
 
     short indices[6 * 6] = { 0, 1, 2, 0, 2, 3,
