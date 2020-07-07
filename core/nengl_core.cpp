@@ -104,7 +104,7 @@ int nengl_core::setup_texture_data(NENGL_TEXTURE_OBJ* objArray)
         GL_CHECK(glGetUniformLocation);
         glGenTextures(1, &curr_state.textureID[i]);
 
-        glUniform1i(loc, 0);
+        glUniform1i(loc, i);
         glActiveTexture(GL_TEXTURE0 + i);
 
         if (obj->type == NENGL_COLOR_FORMAT_RGB24)
@@ -196,7 +196,7 @@ int nengl_core::update_texture_data(NENGL_TEXTURE_OBJ* objArray)
         D_PRINTF("Sampler loc = %d for name %s\n", loc, obj->sampler_name);
         GL_CHECK(glGetUniformLocation);
 
-        glUniform1i(loc, 0);
+        glUniform1i(loc, i);
         glActiveTexture(GL_TEXTURE0 + i);
 
         if (obj->type == NENGL_COLOR_FORMAT_RGB24)
