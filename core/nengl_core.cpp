@@ -37,39 +37,39 @@ int nengl_core::setup_attribute_mesh(void* attribs, int buffer_size, const char*
         bool attrib_normalised, int attrib_stride, void* attrib_elem_offset)
 {
     GLint loc = glGetAttribLocation(curr_state.program, attrib_name);
-    if (loc < 0) return -1;
+if (loc < 0) return -1;
 
-    curr_state.num_attribs++;
-    if (curr_state.num_attribs > (MAX_STATE_ID-1)) return -1;
-    glGenBuffers(1, &curr_state.vboID[curr_state.num_attribs]);
-    glBindBuffer(GL_ARRAY_BUFFER, curr_state.vboID[curr_state.num_attribs]);
-    glBufferData(GL_ARRAY_BUFFER, buffer_size, attribs, GL_STATIC_DRAW);
-    
-    curr_state.attrib_loc[curr_state.num_attribs] = loc;
-    GL_CHECK(glGetAttribLocation);
-	D_PRINTF("Info: [%s] attribute located at [%d]\n", attrib_name, curr_state.attrib_loc[curr_state.num_attribs]);
+curr_state.num_attribs++;
+if (curr_state.num_attribs > (MAX_STATE_ID - 1)) return -1;
+glGenBuffers(1, &curr_state.vboID[curr_state.num_attribs]);
+glBindBuffer(GL_ARRAY_BUFFER, curr_state.vboID[curr_state.num_attribs]);
+glBufferData(GL_ARRAY_BUFFER, buffer_size, attribs, GL_STATIC_DRAW);
 
-    curr_state.attrib_num_elems[curr_state.num_attribs] = attrib_num_elems;
-    curr_state.attrib_type[curr_state.num_attribs] = attrib_type;
-    curr_state.attrib_normalised[curr_state.num_attribs] = attrib_normalised;
-    curr_state.attrib_stride[curr_state.num_attribs] = attrib_stride;
-    curr_state.attrib_elem_offset[curr_state.num_attribs] = attrib_elem_offset;
-    glVertexAttribPointer(curr_state.attrib_loc[curr_state.num_attribs], 
-        curr_state.attrib_num_elems[curr_state.num_attribs],
-        curr_state.attrib_type[curr_state.num_attribs],
-        curr_state.attrib_normalised[curr_state.num_attribs],
-        curr_state.attrib_stride[curr_state.num_attribs],
-        curr_state.attrib_elem_offset[curr_state.num_attribs]);
-    GL_CHECK(glVertexAttribPointer);
-    glEnableVertexAttribArray(curr_state.attrib_loc[curr_state.num_attribs]);
-    GL_CHECK(glEnableVertexAttribArray);
-    return 0;
+curr_state.attrib_loc[curr_state.num_attribs] = loc;
+GL_CHECK(glGetAttribLocation);
+D_PRINTF("Info: [%s] attribute located at [%d]\n", attrib_name, curr_state.attrib_loc[curr_state.num_attribs]);
+
+curr_state.attrib_num_elems[curr_state.num_attribs] = attrib_num_elems;
+curr_state.attrib_type[curr_state.num_attribs] = attrib_type;
+curr_state.attrib_normalised[curr_state.num_attribs] = attrib_normalised;
+curr_state.attrib_stride[curr_state.num_attribs] = attrib_stride;
+curr_state.attrib_elem_offset[curr_state.num_attribs] = attrib_elem_offset;
+glVertexAttribPointer(curr_state.attrib_loc[curr_state.num_attribs],
+    curr_state.attrib_num_elems[curr_state.num_attribs],
+    curr_state.attrib_type[curr_state.num_attribs],
+    curr_state.attrib_normalised[curr_state.num_attribs],
+    curr_state.attrib_stride[curr_state.num_attribs],
+    curr_state.attrib_elem_offset[curr_state.num_attribs]);
+GL_CHECK(glVertexAttribPointer);
+glEnableVertexAttribArray(curr_state.attrib_loc[curr_state.num_attribs]);
+GL_CHECK(glEnableVertexAttribArray);
+return 0;
 }
 
 int nengl_core::setup_index_mesh(void* indices, int num, int bytes_per_index)
-{ 
+{
     curr_state.num_attribs++;
-    if (curr_state.num_attribs > (MAX_STATE_ID-1)) return -1;
+    if (curr_state.num_attribs > (MAX_STATE_ID - 1)) return -1;
     glGenBuffers(1, &curr_state.vboID[curr_state.num_attribs]);
     GL_CHECK(glGetBuffers);
     numindices = num;
@@ -89,6 +89,7 @@ int nengl_core::setup_texture_data(NENGL_TEXTURE_OBJ* objArray)
     int i = 0;
     int loc;
     NENGL_TEXTURE_OBJ* obj = objArray;
+    GLint textureType = GL_RGBA;
 
     restore_attribs();
     while (obj->height)
@@ -96,35 +97,50 @@ int nengl_core::setup_texture_data(NENGL_TEXTURE_OBJ* objArray)
         loc = glGetUniformLocation(curr_state.program, obj->sampler_name);
         if (i > GL_MAX_TEXTURE_IMAGE_UNITS)
         {
-            D_PRINTF("Texture requirements exceed available HW texture units"); 
+            D_PRINTF("Texture requirements exceed available HW texture units");
             return -1;
         }
-	    D_PRINTF("Sampler loc = %d for name %s\n", loc, obj->sampler_name);
-	    GL_CHECK(glGetUniformLocation);
-	    glGenTextures(1, &curr_state.textureID[i]);
-	
+        D_PRINTF("Sampler loc = %d for name %s\n", loc, obj->sampler_name);
+        GL_CHECK(glGetUniformLocation);
+        glGenTextures(1, &curr_state.textureID[i]);
+
         glUniform1i(loc, 0);
         glActiveTexture(GL_TEXTURE0 + i);
-	    if(obj->dim == NENGL_TEXTURE_2D)
-	    {
+
+        if (obj->type == NENGL_COLOR_FORMAT_RGB24)
+        {
+            textureType = GL_RGB;
+        }
+        else if (obj->type == NENGL_COLOR_FORMAT_LUM8)
+        {
+            textureType = GL_LUMINANCE;
+        }
+        if (obj->dim == NENGL_TEXTURE_2D)
+        {
             glBindTexture(GL_TEXTURE_2D, curr_state.textureID[i]);
-		    if (obj->data) //data buffer already available
-		    {
-		        glTexImage2D(
-		            GL_TEXTURE_2D,
-		            0,
-		            (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
-		            obj->width,
-		            obj->height,
-		            0,
-		            (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
-		            GL_UNSIGNED_BYTE,
-		            obj->data
-		            );
-		        GL_CHECK(glTexImage2D);
-		    }
-		    else if (obj->filename)
-		    {
+            if (obj->data) //data buffer already available
+            {
+                glTexImage2D(
+                    GL_TEXTURE_2D,
+                    0,
+                    textureType,
+                    obj->width,
+                    obj->height,
+                    0,
+                    textureType,
+                    GL_UNSIGNED_BYTE,
+                    obj->data
+                );
+                GL_CHECK(glTexImage2D);
+            }
+            else if (obj->filename)
+            {
+                if (obj->type != NENGL_COLOR_FORMAT_ARGB32 &&
+                    obj->type != NENGL_COLOR_FORMAT_RGB24)
+                {
+                    D_PRINTF("Only ARGB32 RGB24 supported, but got %d\n", obj->type);
+                    return -1;
+                }
 			    D_PRINTF("loading from %s\n", obj->filename);
 			    int bpp = (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? 4:3;
                 FILE* fp = NULL;
@@ -166,6 +182,7 @@ int nengl_core::update_texture_data(NENGL_TEXTURE_OBJ* objArray)
     int i = 0;
     int loc;
     NENGL_TEXTURE_OBJ* obj = objArray;
+    GLint textureType = GL_RGBA;
 
     restore_attribs();
     while (obj->height)
@@ -181,6 +198,16 @@ int nengl_core::update_texture_data(NENGL_TEXTURE_OBJ* objArray)
 
         glUniform1i(loc, 0);
         glActiveTexture(GL_TEXTURE0 + i);
+
+        if (obj->type == NENGL_COLOR_FORMAT_RGB24)
+        {
+            textureType = GL_RGB;
+        }
+        else if (obj->type == NENGL_COLOR_FORMAT_LUM8)
+        {
+            textureType = GL_LUMINANCE;
+        }
+
         if (obj->dim == NENGL_TEXTURE_2D)
         {
             glBindTexture(GL_TEXTURE_2D, curr_state.textureID[i]);
@@ -189,11 +216,11 @@ int nengl_core::update_texture_data(NENGL_TEXTURE_OBJ* objArray)
                 glTexImage2D(
                     GL_TEXTURE_2D,
                     0,
-                    (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
+                    textureType,
                     obj->width,
                     obj->height,
                     0,
-                    (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? GL_RGBA : GL_RGB,
+                    textureType,
                     GL_UNSIGNED_BYTE,
                     obj->data
                 );
@@ -201,6 +228,12 @@ int nengl_core::update_texture_data(NENGL_TEXTURE_OBJ* objArray)
             }
             else if (obj->filename)
             {
+                if (obj->type != NENGL_COLOR_FORMAT_ARGB32 &&
+                    obj->type != NENGL_COLOR_FORMAT_RGB24)
+                {
+                    D_PRINTF("Only ARGB32 RGB24 supported, but got %d\n", obj->type);
+                    return -1;
+                }
                 D_PRINTF("loading from %s\n", obj->filename);
                 int bpp = (obj->type == NENGL_COLOR_FORMAT_ARGB32) ? 4 : 3;
                 FILE* fp = NULL;
