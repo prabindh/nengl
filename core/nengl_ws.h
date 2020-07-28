@@ -35,9 +35,14 @@ extern "C" {
         void swap(void* window);
         void handle_events(void* window);
         void clear_screen(float r, float g, float b);
+        void set_interval(int val);
         void depth_flag(bool flag);
         void clear_depth();
         int check_extension(const char* ext);
+#ifdef GLFW_EXPOSE_NATIVE_EGL
+        EGLDisplay get_egl_display();
+        EGLContext get_egl_context(void* window);
+#endif
     };
 
 #ifdef __cplusplus

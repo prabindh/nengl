@@ -10,6 +10,9 @@
 #define GLFW_INCLUDE_ES2 1
 #include <GLFW/glfw3.h>
 
+#define GLFW_EXPOSE_NATIVE_EGL 1
+#include <GLFW/glfw3native.h>
+
 #include "nengl_ws.h"
 #include "nengl_core.h"
 
@@ -64,6 +67,11 @@ void nengl_ws::clear_screen(float r, float g, float b)
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
+void nengl_ws::set_interval(int val)
+{
+    glfwSwapInterval(val);
+}
+
 void nengl_ws::swap(void* window)
 {
     glfwSwapBuffers((GLFWwindow*)window);
@@ -95,3 +103,15 @@ int nengl_ws::check_extension(const char* ext)
     int ret = glfwExtensionSupported(ext);
     return ret;
 }
+
+#ifdef GLFW_EXPOSE_NATIVE_EGL
+EGLDisplay nengl_ws::get_egl_display()
+{
+    return glfwGetEGLDisplay();
+}
+
+EGLContext nengl_ws::get_egl_context(void* window)
+{
+    return glfwGetEGLContext((GLFWwindow*)window);
+}
+#endif
