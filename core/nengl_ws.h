@@ -29,6 +29,7 @@ extern "C" {
         nengl_ws();
         ~nengl_ws();
         void* create_window(int width, int height, const char* title);
+        void destroy_window(void* window);
         void set_mouse_button_handler(MOUSE_BUTTON_HANDLER_FUNC handler);
         void set_cursor_pos_handler(CURSOR_POS_HANDLER_FUNC handler);
         bool get_window_status(void* window);
