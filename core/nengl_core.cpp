@@ -37,33 +37,33 @@ int nengl_core::setup_attribute_mesh(void* attribs, int buffer_size, const char*
         bool attrib_normalised, int attrib_stride, void* attrib_elem_offset)
 {
     GLint loc = glGetAttribLocation(curr_state.program, attrib_name);
-if (loc < 0) return -1;
+    if (loc < 0) return -1;
 
-curr_state.num_attribs++;
-if (curr_state.num_attribs > (MAX_STATE_ID - 1)) return -1;
-glGenBuffers(1, &curr_state.vboID[curr_state.num_attribs]);
-glBindBuffer(GL_ARRAY_BUFFER, curr_state.vboID[curr_state.num_attribs]);
-glBufferData(GL_ARRAY_BUFFER, buffer_size, attribs, GL_STATIC_DRAW);
+    curr_state.num_attribs++;
+    if (curr_state.num_attribs > (MAX_STATE_ID - 1)) return -1;
+    glGenBuffers(1, &curr_state.vboID[curr_state.num_attribs]);
+    glBindBuffer(GL_ARRAY_BUFFER, curr_state.vboID[curr_state.num_attribs]);
+    glBufferData(GL_ARRAY_BUFFER, buffer_size, attribs, GL_STATIC_DRAW);
 
-curr_state.attrib_loc[curr_state.num_attribs] = loc;
-GL_CHECK(glGetAttribLocation);
-D_PRINTF("Info: [%s] attribute located at [%d]\n", attrib_name, curr_state.attrib_loc[curr_state.num_attribs]);
+    curr_state.attrib_loc[curr_state.num_attribs] = loc;
+    GL_CHECK(glGetAttribLocation);
+    D_PRINTF("Info: [%s] attribute located at [%d]\n", attrib_name, curr_state.attrib_loc[curr_state.num_attribs]);
 
-curr_state.attrib_num_elems[curr_state.num_attribs] = attrib_num_elems;
-curr_state.attrib_type[curr_state.num_attribs] = attrib_type;
-curr_state.attrib_normalised[curr_state.num_attribs] = attrib_normalised;
-curr_state.attrib_stride[curr_state.num_attribs] = attrib_stride;
-curr_state.attrib_elem_offset[curr_state.num_attribs] = attrib_elem_offset;
-glVertexAttribPointer(curr_state.attrib_loc[curr_state.num_attribs],
-    curr_state.attrib_num_elems[curr_state.num_attribs],
-    curr_state.attrib_type[curr_state.num_attribs],
-    curr_state.attrib_normalised[curr_state.num_attribs],
-    curr_state.attrib_stride[curr_state.num_attribs],
-    curr_state.attrib_elem_offset[curr_state.num_attribs]);
-GL_CHECK(glVertexAttribPointer);
-glEnableVertexAttribArray(curr_state.attrib_loc[curr_state.num_attribs]);
-GL_CHECK(glEnableVertexAttribArray);
-return 0;
+    curr_state.attrib_num_elems[curr_state.num_attribs] = attrib_num_elems;
+    curr_state.attrib_type[curr_state.num_attribs] = attrib_type;
+    curr_state.attrib_normalised[curr_state.num_attribs] = attrib_normalised;
+    curr_state.attrib_stride[curr_state.num_attribs] = attrib_stride;
+    curr_state.attrib_elem_offset[curr_state.num_attribs] = attrib_elem_offset;
+    glVertexAttribPointer(curr_state.attrib_loc[curr_state.num_attribs],
+        curr_state.attrib_num_elems[curr_state.num_attribs],
+        curr_state.attrib_type[curr_state.num_attribs],
+        curr_state.attrib_normalised[curr_state.num_attribs],
+        curr_state.attrib_stride[curr_state.num_attribs],
+        curr_state.attrib_elem_offset[curr_state.num_attribs]);
+    GL_CHECK(glVertexAttribPointer);
+    glEnableVertexAttribArray(curr_state.attrib_loc[curr_state.num_attribs]);
+    GL_CHECK(glEnableVertexAttribArray);
+    return 0;
 }
 
 int nengl_core::setup_index_mesh(void* indices, int num, int bytes_per_index)

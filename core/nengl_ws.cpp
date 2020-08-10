@@ -33,6 +33,10 @@ nengl_ws::~nengl_ws()
 {
     glfwTerminate();
 }
+void nengl_ws::destroy_window(void* window)
+{
+    glfwDestroyWindow((GLFWwindow *)window);
+}
 
 void* nengl_ws::create_window(int width, int height, const char* title)
 {
