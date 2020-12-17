@@ -123,6 +123,8 @@ extern "C" {
         int setup_point_light(float originx, float originy, float originz, float farx, float fary, float farz);
         int restore_attribs();
         int draw();
+
+        int id;
     };
 
 #ifdef __cplusplus
